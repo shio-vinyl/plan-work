@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 270" width="1000" height="270" role="img" aria-labelledby="t d">
+  <title id="t">数据的追溯链</title>
+  <desc id="d">原件、数据表、测算表、成果文本四层，每个数都能从成果倒着追回原件的页码。示例文件名均为虚构。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8A94A0"/>
+    </marker>
+    <style>
+      text { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif; fill: #1F2933; }
+      .title { font-size: 18px; font-weight: 700; }
+      .sub { font-size: 13px; fill: #5B6672; }
+      .head { font-size: 14px; font-weight: 700; }
+      .file { font-size: 12px; fill: #33414E; }
+      .note { font-size: 11.5px; fill: #6B7682; }
+      .back { font-size: 12px; fill: #2F6F8F; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect x="0.5" y="0.5" width="999" height="269" rx="16" fill="#FAFAF7" stroke="#E5E3DC"/>
+
+  <text class="title" x="36" y="40">数据的追溯链</text>
+  <text class="sub" x="36" y="62">分析只从数据表取数；成果里的每个数都能倒着追回原件的某一页。（文件名为虚构示例）</text>
+
+  <g>
+    <rect x="36" y="86" width="205" height="112" rx="10" fill="#FFFFFF" stroke="#C9CED6"/>
+    <rect x="36" y="86" width="205" height="30" rx="10" fill="#E9EDF1"/>
+    <rect x="36" y="106" width="205" height="10" fill="#E9EDF1"/>
+    <text class="head" x="50" y="106">原件（只读）</text>
+    <text class="file" x="50" y="140">原始资料/汇报稿.pptx</text>
+    <text class="file" x="50" y="160">第 12 页的项目表</text>
+    <text class="note" x="50" y="186">改短名，内容一个不删</text>
+  </g>
+  <g>
+    <rect x="277" y="86" width="205" height="112" rx="10" fill="#FFFFFF" stroke="#C9CED6"/>
+    <rect x="277" y="86" width="205" height="30" rx="10" fill="#E3F0F6"/>
+    <rect x="277" y="106" width="205" height="10" fill="#E3F0F6"/>
+    <text class="head" x="291" y="106">数据表（一表一文件）</text>
+    <text class="file" x="291" y="140">在建项目清单_汇报稿p12_</text>
+    <text class="file" x="291" y="158">20260315.xlsx</text>
+    <text class="note" x="291" y="186">登记进目录；只提取，不改数</text>
+  </g>
+  <g>
+    <rect x="518" y="86" width="205" height="112" rx="10" fill="#FFFFFF" stroke="#C9CED6"/>
+    <rect x="518" y="86" width="205" height="30" rx="10" fill="#EAF2E6"/>
+    <rect x="518" y="106" width="205" height="10" fill="#EAF2E6"/>
+    <text class="head" x="532" y="106">测算表</text>
+    <text class="file" x="532" y="140">参数集中放一页</text>
+    <text class="file" x="532" y="160">一行一个项目，核对区差额为 0</text>
+    <text class="note" x="532" y="186">人工判断标色并写理由</text>
+  </g>
+  <g>
+    <rect x="759" y="86" width="205" height="112" rx="10" fill="#FFFFFF" stroke="#C9CED6"/>
+    <rect x="759" y="86" width="205" height="30" rx="10" fill="#F6EEDF"/>
+    <rect x="759" y="106" width="205" height="10" fill="#F6EEDF"/>
+    <text class="head" x="773" y="106">成果文本</text>
+    <text class="file" x="773" y="140">“在建项目 [N] 个，</text>
+    <text class="file" x="773" y="160">建筑面积 [M] 万平方米”</text>
+    <text class="note" x="773" y="186">数字前写指标名，口径只一套</text>
+  </g>
+
+  <g stroke="#8A94A0" stroke-width="1.5" marker-end="url(#arrow)">
+    <line x1="243" y1="142" x2="274" y2="142"/>
+    <line x1="484" y1="142" x2="515" y2="142"/>
+    <line x1="725" y1="142" x2="756" y2="142"/>
+  </g>
+
+  <path d="M861,200 V230 H138 V203" fill="none" stroke="#2F6F8F" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <rect x="330" y="220" width="340" height="22" fill="#FAFAF7"/>
+  <text class="back" x="500" y="235">核数时倒着追：成果 → 测算表 → 数据表 → 原件页码</text>
+</svg>

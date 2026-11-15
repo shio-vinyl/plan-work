@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 470" width="1000" height="470" role="img" aria-labelledby="t d">
+  <title id="t">plan-work 工作流</title>
+  <desc id="d">开工盘点、依据梳理、数据核实、汇报讨论、写作、交稿交接六步，各步用到的脚本，以及主会话和子 agent 的分工。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8A94A0"/>
+    </marker>
+    <style>
+      text { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif; fill: #1F2933; }
+      .title { font-size: 20px; font-weight: 700; }
+      .sub { font-size: 13px; fill: #5B6672; }
+      .step { font-size: 15px; font-weight: 700; }
+      .desc { font-size: 12px; fill: #3E4A56; text-anchor: middle; }
+      .num { font-size: 13px; font-weight: 700; fill: #FFFFFF; text-anchor: middle; }
+      .label { font-size: 12px; font-weight: 700; fill: #5B6672; }
+      .mono { font-family: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace; font-size: 11px; fill: #33414E; text-anchor: middle; }
+      .lane { font-size: 13px; text-anchor: middle; }
+      .lane2 { font-size: 12px; fill: #5B6672; text-anchor: middle; }
+      .stop { font-size: 11px; font-weight: 700; fill: #B7791F; text-anchor: middle; }
+      .band { font-size: 13px; fill: #FFFFFF; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect x="0.5" y="0.5" width="999" height="469" rx="16" fill="#FAFAF7" stroke="#E5E3DC"/>
+
+  <text class="title" x="35" y="44">plan-work 工作流</text>
+  <text class="sub" x="35" y="68">主会话推进全程；研究阶段把通读和检索分给子 agent；动笔前停下来和用户讨论。</text>
+
+  <!-- 六步 -->
+  <g>
+    <rect x="35" y="100" width="140" height="96" rx="10" fill="#FFFFFF" stroke="#C9CED6"/>
+    <circle cx="57" cy="124" r="12" fill="#2F6F8F"/><text class="num" x="57" y="128.5">1</text>
+    <text class="step" x="77" y="129.5">开工盘点</text>
+    <text class="desc" x="105" y="160">逐个过文件、转写录音</text>
+    <text class="desc" x="105" y="180">要求拆成条目三分类</text>
+  </g>
+  <g>
+    <rect x="193" y="100" width="140" height="96" rx="10" fill="#FFFFFF" stroke="#C9CED6"/>
+    <circle cx="215" cy="124" r="12" fill="#2F6F8F"/><text class="num" x="215" y="128.5">2</text>
+    <text class="step" x="235" y="129.5">依据梳理</text>
+    <text class="desc" x="263" y="160">列依据、查现行状态</text>
+    <text class="desc" x="263" y="180">摘要点、建提法库</text>
+  </g>
+  <g>
+    <rect x="351" y="100" width="140" height="96" rx="10" fill="#FFFFFF" stroke="#C9CED6"/>
+    <circle cx="373" cy="124" r="12" fill="#2F6F8F"/><text class="num" x="373" y="128.5">3</text>
+    <text class="step" x="393" y="129.5">数据核实</text>
+    <text class="desc" x="421" y="160">表格先提成数据表</text>
+    <text class="desc" x="421" y="180">每个数标出处和状态</text>
+  </g>
+  <g>
+    <text class="stop" x="579" y="92">停下来问用户</text>
+    <rect x="509" y="100" width="140" height="96" rx="10" fill="#FFF4DC" stroke="#E0A526" stroke-width="1.5"/>
+    <circle cx="531" cy="124" r="12" fill="#C98A1B"/><text class="num" x="531" y="128.5">4</text>
+    <text class="step" x="551" y="129.5">汇报讨论</text>
+    <text class="desc" x="579" y="160">差距、冲突、数据缺口</text>
+    <text class="desc" x="579" y="180">先讨论，再动笔</text>
+  </g>
+  <g>
+    <rect x="667" y="100" width="140" height="96" rx="10" fill="#FFFFFF" stroke="#C9CED6"/>
+    <circle cx="689" cy="124" r="12" fill="#2F6F8F"/><text class="num" x="689" y="128.5">5</text>
+    <text class="step" x="709" y="129.5">专题写作</text>
+    <text class="desc" x="737" y="160">结构定了再写稿</text>
+    <text class="desc" x="737" y="180">用本地事实，不讲套话</text>
+  </g>
+  <g>
+    <rect x="825" y="100" width="140" height="96" rx="10" fill="#FFFFFF" stroke="#C9CED6"/>
+    <circle cx="847" cy="124" r="12" fill="#2F6F8F"/><text class="num" x="847" y="128.5">6</text>
+    <text class="step" x="867" y="129.5">交稿交接</text>
+    <text class="desc" x="895" y="160">自查清单、核数</text>
+    <text class="desc" x="895" y="180">工作记录留给接手人</text>
+  </g>
+
+  <!-- 箭头 -->
+  <g stroke="#8A94A0" stroke-width="1.5" marker-end="url(#arrow)">
+    <line x1="177" y1="148" x2="190" y2="148"/>
+    <line x1="335" y1="148" x2="348" y2="148"/>
+    <line x1="493" y1="148" x2="506" y2="148"/>
+    <line x1="651" y1="148" x2="664" y2="148"/>
+    <line x1="809" y1="148" x2="822" y2="148"/>
+  </g>
+
+  <!-- 脚本 -->
+  <text class="label" x="35" y="226">脚本</text>
+  <g fill="#EEF2F5">
+    <rect x="35" y="236" width="140" height="22" rx="11"/>
+    <rect x="35" y="264" width="140" height="22" rx="11"/>
+    <rect x="35" y="292" width="140" height="22" rx="11"/>
+    <rect x="193" y="236" width="140" height="22" rx="11"/>
+    <rect x="351" y="236" width="140" height="22" rx="11"/>
+    <rect x="351" y="264" width="140" height="22" rx="11"/>
+    <rect x="825" y="236" width="140" height="22" rx="11"/>
+  </g>
+  <text class="mono" x="105" y="251">transcribe.sh</text>
+  <text class="mono" x="105" y="279">extract_text.py</text>
+  <text class="mono" x="105" y="307">extract_tables.py</text>
+  <text class="mono" x="263" y="251">extract_refs.py</text>
+  <text class="mono" x="421" y="251">gov_search.py</text>
+  <text class="mono" x="421" y="279">gov_fetch.py</text>
+  <text class="mono" x="895" y="251">extract_refs.py</text>
+  <text class="lane2" x="895" y="281">（--phrases 核提法）</text>
+
+  <!-- 分工 -->
+  <text class="label" x="35" y="338">分工</text>
+  <rect x="35" y="348" width="456" height="56" rx="10" fill="#EAF3F8" stroke="#7FA7BE" stroke-dasharray="5 4"/>
+  <text class="lane" x="263" y="371">子 agent 并行：通读大文件 · 依据兜底 · 公开数据检索 · 独立核验</text>
+  <text class="lane2" x="263" y="392">要进结论的数，主会话回原文核过再用</text>
+  <rect x="509" y="348" width="456" height="56" rx="10" fill="#F1F1EC" stroke="#C9C7BE"/>
+  <text class="lane" x="737" y="371">主会话自己做：定口径、和用户讨论、写正文</text>
+  <text class="lane2" x="737" y="392">写作和定口径不派出去，全文风格保持一致</text>
+
+  <!-- 贯穿规矩 -->
+  <rect x="35" y="418" width="930" height="34" rx="8" fill="#2F3A46"/>
+  <text class="band" x="500" y="440">贯穿始终：已定成果是边界 · 每个数有出处 · 对不上的数问用户 · 原件只读</text>
+</svg>
