@@ -76,9 +76,9 @@ Python 脚本统一用 `python3 -I scripts/<脚本> --help` 看用法。
 
 ```bash
 # Claude Code
-git clone https://github.com/shioo-gis/plan-work.git ~/.claude/skills/plan-work
+git clone https://github.com/shio-vinyl/plan-work.git ~/.claude/skills/plan-work
 # Codex
-git clone https://github.com/shioo-gis/plan-work.git ~/.codex/skills/plan-work
+git clone https://github.com/shio-vinyl/plan-work.git ~/.codex/skills/plan-work
 ```
 
 其他支持 Agent Skills 的工具，克隆到它的 skills 目录即可。
