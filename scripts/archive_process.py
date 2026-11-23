@@ -5,6 +5,7 @@
   python3 -I archive_process.py list  <归档.tar.zst>
   python3 -I archive_process.py extract <归档.tar.zst> [--match 文件名里的字] [--to 目录]
   python3 -I archive_process.py restore <归档.tar.zst>   整包解回原位置（保留原文件时间），核对齐全后删掉包和清单
+  python3 -I archive_process.py dedupe <目录>… [--apply]  内容完全相同的文件改成 APFS 克隆（不加 --apply 只列清单）
 
 规则（门槛可用参数改）：
 - 渲染目录（renders/、*.renders/）里最新的文件超过 7 天：整个目录删除，需要时重新渲染。
@@ -16,6 +17,10 @@
 
 打包后省不到两成（--min-save）的不打包，保留原文件：图片、PDF 本身已压缩过，打包只会让查看变麻烦；
 plan 时先快速试压估计，apply 时按实际结果再判断一次。
+
+重复文件：不删、不打包，改成 APFS 克隆（macOS 的 cp -c）。两个路径都在，打开、复制、修改都和原来一样，
+磁盘上只存一份；改了其中一份，系统自动分开。只处理 1 MB 以上的文件，逐字节核对相同才克隆，保留各自的修改时间；
+已经共用数据块的不再列出。Finder 和 du 显示的大小不变，省下的空间体现在磁盘剩余空间里。
 
 每个包旁边写一份 <包名>_清单.md：包里有哪些文件、原大小、怎么解压。包内路径相对项目目录，
 extract 默认解回原位置（已存在的文件不覆盖）。压缩用 zstd --long=31（多版稿子里相同的图片只存一份）；
@@ -361,6 +366,106 @@ def restore(archive):
     return 0
 
 
+def shared_block(path):
+    """文件第一个数据块的物理位置（macOS F_LOG2PHYS）；两个文件相同说明已经是克隆。取不到时返回 None。"""
+    try:
+        import fcntl
+        import struct
+        fd = os.open(path, os.O_RDONLY)
+        try:
+            return struct.unpack('Iqq', fcntl.fcntl(fd, 49, struct.pack('Iqq', 0, 0, 0)))[2]
+        finally:
+            os.close(fd)
+    except (OSError, ImportError, AttributeError):
+        return None
+
+
+def same_bytes(a, b):
+    with open(a, 'rb') as fa, open(b, 'rb') as fb:
+        while True:
+            x, y = fa.read(1 << 22), fb.read(1 << 22)
+            if x != y:
+                return False
+            if not x:
+                return True
+
+
+def duplicates(roots, min_size=1 << 20):
+    """[(大小, [路径…])]，同组内容完全相同、还没共用数据块；第一个路径是保留的源。"""
+    import hashlib
+    by_size = {}
+    for r in roots:
+        for root, dirs, fs in os.walk(os.path.abspath(r)):
+            dirs[:] = [d for d in dirs if not d.startswith('.') and not d.endswith('.gdb')]
+            for f in fs:
+                p = os.path.join(root, f)
+                if f.startswith('~$') or os.path.islink(p) or locked(p):
+                    continue
+                s = os.path.getsize(p)
+                if s >= min_size:
+                    by_size.setdefault(s, set()).add(p)
+    groups = []
+    for s, ps in by_size.items():
+        if len(ps) < 2:
+            continue
+        by_hash = {}
+        for p in sorted(ps):
+            h = hashlib.sha256()
+            with open(p, 'rb') as fh:
+                for c in iter(lambda: fh.read(1 << 22), b''):
+                    h.update(c)
+            by_hash.setdefault(h.hexdigest(), []).append(p)
+        for same in by_hash.values():
+            if len(same) < 2:
+                continue
+            same.sort(key=lambda p: (os.path.getmtime(p), p))
+            src = same[0]
+            blk = shared_block(src)
+            rest = [p for p in same[1:] if blk is None or shared_block(p) != blk]
+            if rest:
+                groups.append((s, [src] + rest))
+    return sorted(groups, key=lambda g: -g[0] * (len(g[1]) - 1))
+
+
+def dedupe(roots, do_apply):
+    groups = duplicates(roots)
+    if not groups:
+        print('没有可以改成克隆的重复文件。')
+        return 0
+    total = sum(s * (len(ps) - 1) for s, ps in groups)
+    base = os.path.commonpath([os.path.abspath(r) for r in roots])
+    for s, ps in groups:
+        print(f'{human(s)} × {len(ps)}')
+        print(f'　保留　{os.path.relpath(ps[0], base)}')
+        for p in ps[1:]:
+            print(f'　克隆　{os.path.relpath(p, base)}')
+    print(f'\n{len(groups)} 组，改成克隆后磁盘可腾出约 {human(total)}。')
+    if not do_apply:
+        print('确认后加 --apply 执行。')
+        return 0
+    done = 0
+    for s, ps in groups:
+        src = ps[0]
+        for p in ps[1:]:
+            if not same_bytes(src, p):
+                print(f'跳过（内容和源不同）：{p}')
+                continue
+            st = os.stat(p)
+            tmp = p + '.clone-tmp'
+            res = subprocess.run(['cp', '-c', src, tmp], capture_output=True, text=True)
+            if res.returncode or not same_bytes(src, tmp):
+                if os.path.exists(tmp):
+                    os.remove(tmp)
+                print(f'跳过（克隆失败）：{p}　{res.stderr.strip()}')
+                continue
+            os.chmod(tmp, st.st_mode)
+            os.utime(tmp, (st.st_atime, st.st_mtime))
+            os.replace(tmp, p)
+            done += s
+    print(f'已改成克隆，腾出约 {human(done)}。')
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description='过程文件归档')
     sub = ap.add_subparsers(dest='cmd', required=True)
@@ -375,6 +480,9 @@ def main():
     p.add_argument('archive')
     p = sub.add_parser('restore')
     p.add_argument('archive')
+    p = sub.add_parser('dedupe')
+    p.add_argument('dirs', nargs='+')
+    p.add_argument('--apply', action='store_true')
     p = sub.add_parser('extract')
     p.add_argument('archive')
     p.add_argument('--match')
@@ -395,6 +503,8 @@ def main():
         return 0
     if a.cmd == 'restore':
         return restore(a.archive)
+    if a.cmd == 'dedupe':
+        return dedupe(a.dirs, a.apply)
     return extract(a.archive, a.match, a.to)
 
 
