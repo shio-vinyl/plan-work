@@ -4,6 +4,7 @@
   python3 -I archive_process.py apply <项目目录>…   照 plan 执行：先打包、核对包内文件齐全，再删原文件
   python3 -I archive_process.py list  <归档.tar.zst>
   python3 -I archive_process.py extract <归档.tar.zst> [--match 文件名里的字] [--to 目录]
+  python3 -I archive_process.py restore <归档.tar.zst>   整包解回原位置（保留原文件时间），核对齐全后删掉包和清单
 
 规则（门槛可用参数改）：
 - 渲染目录（renders/、*.renders/）里最新的文件超过 7 天：整个目录删除，需要时重新渲染。
@@ -12,6 +13,9 @@
 - 历史目录（历史版本/、历史/、_归档/）：每条汇报线（文件名去掉 _v 版本号和 _交付、_清备注 等后缀）
   留版本号最大的两版不动，更早且超过 14 天的大文件打成 归档_<今天>.tar.zst；大纲等文字文件留在原地。
 - 不碰：项目根目录的文件、资料和成果目录（资料/、原始资料/、规划成果/、同事来稿/、原文/、研究稿/、专题稿/）、*.gdb、有 ~$ 锁文件的稿子。
+
+打包后省不到两成（--min-save）的不打包，保留原文件：图片、PDF 本身已压缩过，打包只会让查看变麻烦；
+plan 时先快速试压估计，apply 时按实际结果再判断一次。
 
 每个包旁边写一份 <包名>_清单.md：包里有哪些文件、原大小、怎么解压。包内路径相对项目目录，
 extract 默认解回原位置（已存在的文件不覆盖）。压缩用 zstd --long=31（多版稿子里相同的图片只存一份）；
@@ -105,7 +109,23 @@ def line_and_version(name):
     return VERSION.sub('', stem, count=1), int(m.group(1))
 
 
-def plan(project, now, render_days, round_days, keep):
+def compressed_size(project, files, level=3):
+    """试压一遍，返回压缩后字节数；没有 zstd 时返回 None。"""
+    if not zstd():
+        return None
+    rel = [os.path.relpath(f, project) for f in files]
+    tar = subprocess.Popen(['tar', '-cf', '-', '-C', project, '--', *rel], stdout=subprocess.PIPE, env=TAR_ENV)
+    z = subprocess.Popen([zstd(), '-q', f'-{level}', '--long=31', '-T0', '-c'], stdin=tar.stdout, stdout=subprocess.PIPE)
+    tar.stdout.close()
+    n = 0
+    for chunk in iter(lambda: z.stdout.read(1 << 20), b''):
+        n += len(chunk)
+    z.wait()
+    tar.wait()
+    return n
+
+
+def plan(project, now, render_days, round_days, keep, min_save=0.2):
     project = os.path.abspath(project)
     out = {'project': project, 'delete': [], 'bundles': []}
     renders, rounds, histories = [], [], []
@@ -156,6 +176,12 @@ def plan(project, now, render_days, round_days, keep):
                     files.append(p)
         if files:
             out['bundles'].append({'dir': d, 'kind': '历史目录', 'files': sorted(files)})
+    for b in out['bundles']:
+        b['size'] = sum(os.path.getsize(f) for f in b['files'])
+        est = compressed_size(project, b['files'])
+        b['estimate'] = est
+        b['skip'] = est is not None and est > b['size'] * (1 - min_save)
+    out['min_save'] = min_save
     return out
 
 
@@ -169,14 +195,19 @@ def report(plans):
             total += x['size']
             print(f'　删除　{os.path.relpath(x["path"], pl["project"])}　{human(x["size"])}（{x["why"]}）')
         for b in pl['bundles']:
-            s = sum(os.path.getsize(f) for f in b['files'])
+            s = b['size']
+            rel = os.path.relpath(b['dir'], pl['project'])
+            est = f'，试压约 {human(b["estimate"])}' if b['estimate'] is not None else ''
+            if b['skip']:
+                print(f'　不打包　{rel}　{len(b["files"])} 个文件，{human(s)}{est}，省不到 {pl["min_save"]:.0%}，保留原文件')
+                continue
             total += s
-            print(f'　打包　{os.path.relpath(b["dir"], pl["project"])}（{b["kind"]}）　{len(b["files"])} 个文件，{human(s)}')
+            print(f'　打包　{rel}（{b["kind"]}）　{len(b["files"])} 个文件，{human(s)}{est}')
             for f in b['files'][:8]:
                 print(f'　　　　{os.path.relpath(f, b["dir"])}')
             if len(b['files']) > 8:
                 print(f'　　　　……另有 {len(b["files"]) - 8} 个')
-    print(f'\n合计处理 {human(total)}；打包后的大小要执行时才知道，多版稿子一般能压到一成以下。')
+    print(f'\n合计处理 {human(total)}；试压用的是快速档，执行时压得更小一些。')
 
 
 def write_archive(project, files, dest):
@@ -215,6 +246,8 @@ def apply(pl, now, script):
     stamp = now.strftime('%Y%m%d')
     ext = 'tar.zst' if zstd() else 'tar.xz'
     for b in pl['bundles']:
+        if b['skip']:
+            continue
         name = ('_归档_' if b['kind'] == '改稿目录' else '归档_') + f'{stamp}.{ext}'
         dest = os.path.join(b['dir'], name)
         n = 2
@@ -227,9 +260,13 @@ def apply(pl, now, script):
         if got != want:
             os.remove(dest)
             raise RuntimeError(f'{dest}：包内文件和原文件对不上，已删掉这个包，原文件没动')
+        before, after = sum(want.values()), os.path.getsize(dest)
+        if after > before * (1 - pl['min_save']):
+            os.remove(dest)
+            print(f'不打包　{os.path.relpath(b["dir"], project)}　{human(before)} → {human(after)}，省不到 {pl["min_save"]:.0%}，保留原文件')
+            continue
         for f in b['files']:
             os.remove(f)
-        before, after = sum(want.values()), os.path.getsize(dest)
         write_list(dest, project, want, before, after, now, script)
         print(f'已打包　{os.path.relpath(dest, project)}　{len(want)} 个文件，{human(before)} → {human(after)}')
         for root, dirs, fs in os.walk(b['dir'], topdown=False):
@@ -294,6 +331,36 @@ def extract(archive, match, to):
     return 0
 
 
+def restore(archive):
+    """整包解回原位置：保留原文件时间，核对每个文件都在、大小一致后，删掉包和清单。"""
+    members = read_members(archive)
+    to = project_of(archive)
+    clash = [n for n, s in members if os.path.exists(os.path.join(to, n)) and os.path.getsize(os.path.join(to, n)) != s]
+    if clash:
+        print('这些位置已有同名但大小不同的文件，没有解压：\n' + '\n'.join(clash))
+        return 1
+    z = subprocess.Popen([zstd(), '-d', '-q', '--long=31', '-c', archive], stdout=subprocess.PIPE) if archive.endswith('.zst') else None
+    if z:
+        t = subprocess.run(['tar', '-xf', '-', '-C', to, '-k'], stdin=z.stdout, env=TAR_ENV)
+        z.stdout.close()
+        z.wait()
+    else:
+        with tarfile.open(archive, 'r:xz') as tf:
+            for m in tf.getmembers():
+                if not os.path.exists(os.path.join(to, m.name)):
+                    tf.extract(m, to)
+    missing = [n for n, s in members if not os.path.isfile(os.path.join(to, n)) or os.path.getsize(os.path.join(to, n)) != s]
+    if missing:
+        print('有文件没解回来，包和清单都留着：\n' + '\n'.join(missing))
+        return 1
+    os.remove(archive)
+    lst = re.sub(r'\.tar\.(zst|xz)$', '_清单.md', archive)
+    if os.path.exists(lst):
+        os.remove(lst)
+    print(f'已解回 {len(members)} 个文件，删掉了 {os.path.basename(archive)} 和清单')
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description='过程文件归档')
     sub = ap.add_subparsers(dest='cmd', required=True)
@@ -303,7 +370,10 @@ def main():
         p.add_argument('--render-days', type=int, default=7)
         p.add_argument('--round-days', type=int, default=14)
         p.add_argument('--keep', type=int, default=2, help='历史目录里每条汇报线留最新几版不打包')
+        p.add_argument('--min-save', type=float, default=0.2, help='打包后至少省下这个比例才打包，默认 0.2')
     p = sub.add_parser('list')
+    p.add_argument('archive')
+    p = sub.add_parser('restore')
     p.add_argument('archive')
     p = sub.add_parser('extract')
     p.add_argument('archive')
@@ -312,7 +382,7 @@ def main():
     a = ap.parse_args()
     now = dt.datetime.now()
     if a.cmd in ('plan', 'apply'):
-        plans = [plan(p, now, a.render_days, a.round_days, a.keep) for p in a.projects]
+        plans = [plan(p, now, a.render_days, a.round_days, a.keep, a.min_save) for p in a.projects]
         report(plans)
         if a.cmd == 'apply':
             print()
@@ -323,6 +393,8 @@ def main():
         for n, s in read_members(a.archive):
             print(f'{human(s):>10}  {n}')
         return 0
+    if a.cmd == 'restore':
+        return restore(a.archive)
     return extract(a.archive, a.match, a.to)
 
 
