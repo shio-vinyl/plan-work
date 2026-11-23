@@ -273,6 +273,7 @@ def extract(archive, match, to):
         print('包里没有匹配的文件')
         return 1
     to = to or project_of(archive)
+    os.makedirs(to, exist_ok=True)
     if archive.endswith('.zst'):
         z = subprocess.Popen([zstd(), '-d', '-q', '--long=31', '-c', archive], stdout=subprocess.PIPE)
         t = subprocess.run(['tar', '-xf', '-', '-C', to, '-k', '--', *names], stdin=z.stdout, env=TAR_ENV)
