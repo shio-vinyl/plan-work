@@ -3,3 +3,6 @@ __pycache__/
 .DS_Store
 downloads/
 _提取文字/
+.env
+.env.*
+/.config/govdoc/env

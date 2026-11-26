@@ -43,7 +43,7 @@
 
 ### 3. 数据：先成表，再取数
 
-材料里的表格（PPT、PDF、Word、图片、Excel 各工作表）和 GIS 属性表，先用 `extract_tables.py` 提成一表一个的数据表并登记目录，测算和文本只从数据表取数。每个数都有出处，状态分可用、待核、有误、无出处、缺五类；拿不到的如实写缺口，不推算凑数。现状、在建、库存、计划出自不同的表时，按项目逐个对账，每个项目只计一次；和上位指标比之前，先查清它按开工、供应、入市还是竣工统计。公开数据按项目材料、政府官网、统计出版物、部门公告、媒体的顺序找，国内政府网站用本机直连检索和抓取。见[数据来源与检索](references/数据来源与检索.md)。
+材料里的表格（PPT、PDF、Word、图片、Excel 各工作表）和 GIS 属性表，先用 `extract_tables.py` 提成一表一个的数据表并登记目录，测算和文本只从数据表取数。每个数都有出处，状态分可用、待核、有误、无出处、缺五类；拿不到的如实写缺口，不推算凑数。现状、在建、库存、计划出自不同的表时，按项目逐个对账，每个项目只计一次；和上位指标比之前，先查清它按开工、供应、入市还是竣工统计。公开数据与政策公文按项目材料、政府官网、统计出版物、部门公告、媒体的顺序找，国内政府网站用本机直连检索、强校验抓取并按规范归档原件。见[数据来源与检索](references/数据来源与检索.md)、[政策与公文检索](references/政策与公文检索.md)。
 
 ![数据的追溯链：原件、数据表、测算表、成果文本](docs/assets/readme/data-trace.svg)
 
@@ -66,8 +66,9 @@
 | `extract_text.py` | 批量提取 docx、doc、rtf、pptx、pdf、xlsx、xls、et 的文字；PPT 标出隐藏页、备注和版面外对象，Word 附删掉的修订和批注 |
 | `extract_tables.py` | 把表格和 GIS 属性表提成一表一个的 xlsx，命名为“名称_来源_提取日期”，自动登记目录 |
 | `extract_refs.py` | 列出材料引用的规划、政策、标准和文号，对照各材料的依据章节；`--phrases` 统计引号里的提法 |
-| `gov_search.py` | 调广东省政府网站群统一搜索；其他省份照[数据来源与检索](references/数据来源与检索.md)的方法找到接口后改写 |
-| `gov_fetch.py` | 抓政府网页正文，列出并下载附件 |
+| `govdoc.py` | 全国政策、公文、标准规范与规划公告一体化工具（零 Key 查中国政府网与行标/地标、可插拔全国规划轨道搜索、栏目翻页、魔数校验抓取归档、OFD/PDF/WPS/RAR 解析；内部模块在 `scripts/_govdoc/`） |
+| `gov_search.py` | 轻量调用广东省政府网站群统一搜索（含站点数量与 403/412 保护） |
+| `gov_fetch.py` | 轻量抓政府网页正文，列出并下载附件 |
 | `transcribe.sh` | 录音转文字（Apple Silicon 的 Mac，本地 mlx-whisper） |
 
 Python 脚本统一用 `python3 -I scripts/<脚本> --help` 看用法。
@@ -104,13 +105,13 @@ agent 会读 [SKILL.md](SKILL.md)，按需查看 `references/` 里的参考文�
 - **Python 3**，`openpyxl` 用于读写表格。`extract_tables.py` 处理 PDF、GIS 时需要 `pdfplumber`、`pyogrio`，缺了且装有 [uv](https://github.com/astral-sh/uv) 时会自动用临时环境运行。
 - **文字提取**：`pdftotext`（poppler）读 PDF；`soffice`（LibreOffice）转换 doc、xls、et；macOS 自带的 `textutil` 读 doc、rtf；`tesseract`（含 `chi_sim` 语言包）识别图片文字。
 - **录音转写**：Apple Silicon 的 Mac 和 `ffmpeg`。首次运行自动建虚拟环境、安装 mlx-whisper，从 ModelScope 下载约 1.6 GB 的模型，放在 `~/.cache/plan-work/asr`（可用 `PLAN_WORK_ASR` 改位置）。
-- **政府网站检索**：`curl`，以及能直连国内网络的环境；境外的搜索引擎和抓取工具大多访问不到区级政府网站。
+- **政府网站与政策检索**：`curl` 以及能直连国内网络的环境（境外搜索引擎与抓取工具大多访问不到区级政府网站）。`govdoc.py` 零外部 Python 依赖：`central`、`std`、`list`、`fetch`、`extract` 均无需 API Key；使用 `search` 做全国泛搜时，可在环境变量或仓库外的 `~/.config/govdoc/env`（权限 `600`）中配置百度千帆（`BAIDU_QIANFAN_API_KEY`）、博查（`BOCHA_API_KEY`）或阿里云（`ALIYUN_IQS_API_KEY`）任一 Key；`extract` 解析 PDF/老格式 Office/RAR 时按需调用 `pdftotext`、`soffice`、`7z`。
 
 ## 数据与隐私
 
 - **项目材料**：脚本都在本地运行，但 agent 读到的内容会进入它所用模型的上下文。规划项目的材料常有未公开的内容，能不能交给 agent 处理，请按所在单位和委托方的保密要求自己判断。
 - **录音转写**：在本机用 mlx-whisper 识别，录音不上传；联网只为首次下载模型。录音里有别人的讲话，转写前请确认你有权处理。转写稿未经校对，地名、单位常有同音错字。
-- **政府网站检索**：`gov_search.py`、`gov_fetch.py` 只访问公开页面，请求发往 `search.gd.gov.cn` 和你给的网址，不带登录信息。请低频使用，遵守网站的使用条款，不要批量高频抓取。下载的附件存在 `--out` 目录。
+- **政府网站与政策检索**：`govdoc.py`、`gov_search.py`、`gov_fetch.py` 只访问公开页面（中国政府网、标准备案平台、政府门户）与用户自行配置的搜索 API，不带政府网站登录信息；API Key 与自定义本机站点表仅存放在环境变量或仓库外的 `~/.config/govdoc/`，不会写入项目目录或仓库。请低频使用，遵守网站的使用条款，遇到 403/412 自动熔断停手，不要批量高频抓取。下载的附件存在 `--out` 或 `--archive` 目录。
 - **仓库内容**：仓库不含任何真实项目的材料；文档和示意图里的地名、文件名和数字都是虚构示例。
 
 ## 许可证

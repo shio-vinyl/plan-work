@@ -31,17 +31,30 @@ def main():
     p.add_argument("--referer", default="https://www.gd.gov.cn/", help="接口要求带 Referer，一般用任一省内政府站即可")
     a = p.parse_args()
 
+    site_list = [s.strip() for s in a.site.split(",") if s.strip()]
+    if len(site_list) > 10:
+        print("拒绝执行：单次最多传 10 个已验证站点 id，禁止扫段以免触发 403 限流。", file=sys.stderr)
+        sys.exit(2)
+
     cmd = [
-        "curl", "-s", "-m", "20", "-G", "-A", UA, "-e", a.referer,
+        "curl", "-sS", "-g", "-m", "20", "-G", "-A", UA, "-e", a.referer,
+        "-w", "\n__HTTP_CODE__%{http_code}",
         "https://search.gd.gov.cn/jsonp/sites",
         "--data-urlencode", f"text={a.text}",
         "-d", f"callback=cb&position={a.pos}&page={a.page}&pagesize={a.size}"
-              f"&including_link_doc=1&including_url_doc=1&sites={a.site}",
+              f"&including_link_doc=1&including_url_doc=1&sites={','.join(site_list)}",
     ]
-    raw = subprocess.run(cmd, capture_output=True, text=True).stdout
+    raw_full = subprocess.run(cmd, capture_output=True, text=True).stdout
+    raw, code = raw_full, "000"
+    if "\n__HTTP_CODE__" in raw_full:
+        raw, code = raw_full.rsplit("\n__HTTP_CODE__", 1)
+        code = code.strip()
+    if code in ("403", "412", "429", "521"):
+        print(f"搜索被拦截或限流（HTTP {code}），请立即停搜，改用栏目翻页或全国搜索 API（scripts/govdoc.py）。", file=sys.stderr)
+        sys.exit(1)
     m = re.match(r"^\s*cb\((.*)\)\s*;?\s*$", raw, re.S)
     if not m:
-        print("搜索失败（网络不通，或接口要求变了）：", raw[:300])
+        print(f"搜索失败（HTTP {code}，网络不通或接口要求变了）：", raw[:300], file=sys.stderr)
         sys.exit(1)
     d = json.loads(m.group(1))
     results = d.get("results", [])

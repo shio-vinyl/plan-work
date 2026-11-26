@@ -1,0 +1,520 @@
+{
+  "version": "1.0",
+  "notes": "全国规划咨询常用公开政务域名表（按中央部委、直辖市及主要省市均衡收录）。未收录的地市、区县会自动泛化到全国 gov.cn 路由；常用本地站点可用 `sites add` 沉淀到 ~/.config/govdoc/sites.json。",
+  "central": {
+    "gov": ["www.gov.cn", "sousuo.www.gov.cn"],
+    "pnr": ["www.mnr.gov.cn", "gk.mnr.gov.cn"],
+    "housing": ["www.mohurd.gov.cn"],
+    "fgw": ["www.ndrc.gov.cn"],
+    "stats": ["www.stats.gov.cn"],
+    "env": ["www.mee.gov.cn"],
+    "agri": ["www.moa.gov.cn"],
+    "water": ["www.mwr.gov.cn"],
+    "law": ["flk.npc.gov.cn", "xzfg.moj.gov.cn", "www.npc.gov.cn"],
+    "std": ["hbba.sacinfo.org.cn", "dbba.sacinfo.org.cn", "std.samr.gov.cn", "openstd.samr.gov.cn"],
+    "ggzy": ["www.ggzy.gov.cn", "landchina.mnr.gov.cn", "www.landchina.com"]
+  },
+  "tracks": {
+    "upper-policy": {
+      "label": "上位政策与五年规划",
+      "description": "国务院/部委政策文件、五年规划建议与纲要、政府工作报告、政府公报与规范性文件效力核验",
+      "dept_keys": ["gov", "fgw"],
+      "central_keys": ["gov", "fgw", "law"],
+      "query_hints": ["十五五", "十四五", "规划纲要", "政府公报", "规范性文件"],
+      "prefer_direct": ["central"]
+    },
+    "spatial-plan": {
+      "label": "国土空间规划与控规详规",
+      "description": "国土空间总体规划批复与公开文本、控规/详规草案公示与批后公布、法定图则、用地混合与用途转换",
+      "dept_keys": ["pnr", "gov"],
+      "central_keys": ["pnr", "gov"],
+      "query_hints": ["国土空间", "详细规划", "规划公示", "用地性质", "功能混合"],
+      "prefer_direct": ["central", "list"]
+    },
+    "housing-renewal": {
+      "label": "住房保障与城市更新",
+      "description": "住房发展规划、保障性住房配租配售公告、城市更新计划与专规公告、老旧小区改造、物业与绿色建筑",
+      "dept_keys": ["housing", "pnr", "gov"],
+      "central_keys": ["housing", "pnr", "gov"],
+      "query_hints": ["城市更新", "保障性住房", "配租", "住房发展", "物业"],
+      "prefer_direct": ["central", "list"]
+    },
+    "land-supply": {
+      "label": "土地供应、出让与公共资源",
+      "description": "年度建设用地供应计划、土地招拍挂出让公告与成交公示、规划设计条件、基准地价、土地储备与盘活",
+      "dept_keys": ["pnr", "ggzy", "gov"],
+      "central_keys": ["pnr", "ggzy"],
+      "query_hints": ["土地出让", "供地计划", "挂牌出让", "规划设计条件", "土地储备"],
+      "prefer_direct": ["list"]
+    },
+    "stats-census": {
+      "label": "统计公报、年鉴与普查",
+      "description": "年度统计公报、月/季度经济运行情况、统计年鉴、人口普查公报、经济普查公报、法治政府建设报告",
+      "dept_keys": ["stats", "gov"],
+      "central_keys": ["stats"],
+      "query_hints": ["统计公报", "统计年鉴", "经济运行情况", "人口普查", "经济普查", "法治政府建设"],
+      "prefer_direct": ["list"]
+    },
+    "standards": {
+      "label": "国标、行标、地标与技术准则",
+      "description": "国家标准（GB/GB/T）、行业标准（TD/T、CJJ、JGJ）、地方标准（DB*）与城市规划技术准则",
+      "dept_keys": ["pnr", "housing", "gov"],
+      "central_keys": ["std", "pnr", "housing"],
+      "query_hints": ["标准", "规范", "技术导则", "准则"],
+      "prefer_direct": ["std"]
+    },
+    "benchmark": {
+      "label": "外地对标政策与实践调研",
+      "description": "跨城市规范性文件原文、正负面清单与附表、官方解读及落地案例横向对比",
+      "dept_keys": ["gov", "pnr", "housing"],
+      "central_keys": ["gov", "pnr", "housing"],
+      "query_hints": ["实施办法", "指导意见", "管理办法", "正面清单", "负面清单", "政策解读"],
+      "prefer_direct": ["central", "list"]
+    }
+  },
+  "exclude_noise_domains": [
+    "baijiahao.baidu.com",
+    "sohu.com",
+    "163.com",
+    "qq.com",
+    "sina.com.cn",
+    "zhihu.com",
+    "douyin.com",
+    "xiaohongshu.com",
+    "bilibili.com",
+    "toutiao.com",
+    "360doc.com",
+    "wenku.baidu.com",
+    "docin.com"
+  ],
+  "regions": {
+    "北京": {
+      "aliases": ["北京市", "beijing"],
+      "level": "municipality",
+      "domains": {
+        "gov": ["www.beijing.gov.cn", "www.bjrd.gov.cn"],
+        "pnr": ["ghzrzyw.beijing.gov.cn"],
+        "housing": ["zjw.beijing.gov.cn"],
+        "fgw": ["fgw.beijing.gov.cn"],
+        "stats": ["tjj.beijing.gov.cn"],
+        "ggzy": ["ggzyfw.beijing.gov.cn"]
+      }
+    },
+    "上海": {
+      "aliases": ["上海市", "shanghai"],
+      "level": "municipality",
+      "domains": {
+        "gov": ["www.shanghai.gov.cn"],
+        "pnr": ["ghzyj.sh.gov.cn"],
+        "housing": ["zjw.sh.gov.cn", "fgj.sh.gov.cn"],
+        "fgw": ["fgw.sh.gov.cn"],
+        "stats": ["tjj.sh.gov.cn"],
+        "ggzy": ["www.shtdsc.com"]
+      }
+    },
+    "天津": {
+      "aliases": ["天津市", "tianjin"],
+      "level": "municipality",
+      "domains": {
+        "gov": ["www.tj.gov.cn"],
+        "pnr": ["ghhzrzy.tj.gov.cn"],
+        "housing": ["zfcxjs.tj.gov.cn"],
+        "fgw": ["fzgg.tj.gov.cn"],
+        "stats": ["stats.tj.gov.cn"],
+        "ggzy": ["ggzy.zwfwb.tj.gov.cn"]
+      }
+    },
+    "重庆": {
+      "aliases": ["重庆市", "chongqing"],
+      "level": "municipality",
+      "domains": {
+        "gov": ["www.cq.gov.cn"],
+        "pnr": ["ghzrzyj.cq.gov.cn"],
+        "housing": ["zfcxjw.cq.gov.cn"],
+        "fgw": ["fzggw.cq.gov.cn"],
+        "stats": ["tjj.cq.gov.cn"],
+        "ggzy": ["www.cqggzy.com"]
+      }
+    },
+    "广东": {
+      "aliases": ["广东省", "guangdong"],
+      "level": "province",
+      "gd_site_ids": ["2"],
+      "domains": {
+        "gov": ["www.gd.gov.cn"],
+        "pnr": ["nr.gd.gov.cn"],
+        "housing": ["zfcxjst.gd.gov.cn"],
+        "fgw": ["drc.gd.gov.cn"],
+        "stats": ["stats.gd.gov.cn"],
+        "ggzy": ["ygp.gdzwfw.gov.cn"]
+      }
+    },
+    "广州": {
+      "aliases": ["广州市", "guangzhou"],
+      "parent": "广东",
+      "level": "city",
+      "gd_site_ids": ["200001"],
+      "domains": {
+        "gov": ["www.gz.gov.cn"],
+        "pnr": ["ghzyj.gz.gov.cn"],
+        "housing": ["zfcj.gz.gov.cn"],
+        "fgw": ["fgw.gz.gov.cn"],
+        "stats": ["tjj.gz.gov.cn"],
+        "ggzy": ["www.gzggzy.cn"]
+      }
+    },
+    "深圳": {
+      "aliases": ["深圳市", "shenzhen"],
+      "parent": "广东",
+      "level": "city",
+      "gd_site_ids": ["755001"],
+      "domains": {
+        "gov": ["www.sz.gov.cn", "www.szrd.gov.cn"],
+        "pnr": ["pnr.sz.gov.cn"],
+        "housing": ["zjj.sz.gov.cn"],
+        "fgw": ["fgw.sz.gov.cn"],
+        "stats": ["tjj.sz.gov.cn"],
+        "ggzy": ["www.szggzy.com"]
+      }
+    },
+    "珠海": {
+      "aliases": ["珠海市"],
+      "parent": "广东",
+      "level": "city",
+      "domains": {
+        "gov": ["www.zhuhai.gov.cn"],
+        "pnr": ["zrzyj.zhuhai.gov.cn"],
+        "housing": ["zjj.zhuhai.gov.cn"]
+      }
+    },
+    "佛山": {
+      "aliases": ["佛山市"],
+      "parent": "广东",
+      "level": "city",
+      "domains": {
+        "gov": ["www.foshan.gov.cn"],
+        "pnr": ["fszrzy.foshan.gov.cn"],
+        "housing": ["fszj.foshan.gov.cn"]
+      }
+    },
+    "东莞": {
+      "aliases": ["东莞市"],
+      "parent": "广东",
+      "level": "city",
+      "domains": {
+        "gov": ["www.dg.gov.cn"],
+        "pnr": ["nr.dg.gov.cn"],
+        "housing": ["zjj.dg.gov.cn"]
+      }
+    },
+    "江苏": {
+      "aliases": ["江苏省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.jiangsu.gov.cn"],
+        "pnr": ["zrzy.jiangsu.gov.cn"],
+        "housing": ["jsszfhcxjst.jiangsu.gov.cn"],
+        "fgw": ["fzggw.jiangsu.gov.cn"],
+        "stats": ["tj.jiangsu.gov.cn"]
+      }
+    },
+    "南京": {
+      "aliases": ["南京市"],
+      "parent": "江苏",
+      "level": "city",
+      "domains": {
+        "gov": ["www.nanjing.gov.cn"],
+        "pnr": ["ghj.nanjing.gov.cn"],
+        "housing": ["fcj.nanjing.gov.cn", "sjw.nanjing.gov.cn"]
+      }
+    },
+    "苏州": {
+      "aliases": ["苏州市"],
+      "parent": "江苏",
+      "level": "city",
+      "domains": {
+        "gov": ["www.suzhou.gov.cn"],
+        "pnr": ["zrzy.jiangsu.gov.cn", "gtj.suzhou.gov.cn"],
+        "housing": ["zjj.suzhou.gov.cn"]
+      }
+    },
+    "浙江": {
+      "aliases": ["浙江省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.zj.gov.cn"],
+        "pnr": ["zrzyt.zj.gov.cn"],
+        "housing": ["jst.zj.gov.cn"],
+        "fgw": ["fzggw.zj.gov.cn"],
+        "stats": ["tjj.zj.gov.cn"]
+      }
+    },
+    "杭州": {
+      "aliases": ["杭州市"],
+      "parent": "浙江",
+      "level": "city",
+      "domains": {
+        "gov": ["www.hangzhou.gov.cn"],
+        "pnr": ["ghzy.hangzhou.gov.cn"],
+        "housing": ["fgj.hangzhou.gov.cn", "cxjw.hangzhou.gov.cn"]
+      }
+    },
+    "宁波": {
+      "aliases": ["宁波市"],
+      "parent": "浙江",
+      "level": "city",
+      "domains": {
+        "gov": ["www.ningbo.gov.cn"],
+        "pnr": ["zgj.ningbo.gov.cn"],
+        "housing": ["zjw.ningbo.gov.cn"]
+      }
+    },
+    "福建": {
+      "aliases": ["福建省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.fujian.gov.cn"],
+        "pnr": ["zrzyt.fujian.gov.cn"],
+        "housing": ["zjt.fujian.gov.cn"]
+      }
+    },
+    "福州": {
+      "aliases": ["福州市"],
+      "parent": "福建",
+      "level": "city",
+      "domains": {
+        "gov": ["www.fuzhou.gov.cn"],
+        "pnr": ["zyghj.fuzhou.gov.cn"],
+        "housing": ["zjj.fuzhou.gov.cn"]
+      }
+    },
+    "厦门": {
+      "aliases": ["厦门市"],
+      "parent": "福建",
+      "level": "city",
+      "domains": {
+        "gov": ["www.xm.gov.cn"],
+        "pnr": ["zygh.xm.gov.cn"],
+        "housing": ["js.xm.gov.cn"]
+      }
+    },
+    "四川": {
+      "aliases": ["四川省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.sc.gov.cn"],
+        "pnr": ["dnr.sc.gov.cn"],
+        "housing": ["jst.sc.gov.cn"],
+        "stats": ["tjj.sc.gov.cn"]
+      }
+    },
+    "成都": {
+      "aliases": ["成都市"],
+      "parent": "四川",
+      "level": "city",
+      "domains": {
+        "gov": ["www.chengdu.gov.cn"],
+        "pnr": ["mpnr.chengdu.gov.cn"],
+        "housing": ["cdzj.chengdu.gov.cn"]
+      }
+    },
+    "湖北": {
+      "aliases": ["湖北省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.hubei.gov.cn"],
+        "pnr": ["zrzyt.hubei.gov.cn"],
+        "housing": ["zjt.hubei.gov.cn"]
+      }
+    },
+    "武汉": {
+      "aliases": ["武汉市"],
+      "parent": "湖北",
+      "level": "city",
+      "domains": {
+        "gov": ["www.wuhan.gov.cn"],
+        "pnr": ["zrzyhgh.wuhan.gov.cn"],
+        "housing": ["fgj.wuhan.gov.cn", "cjw.wuhan.gov.cn"]
+      }
+    },
+    "湖南": {
+      "aliases": ["湖南省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.hunan.gov.cn"],
+        "pnr": ["zrzyt.hunan.gov.cn"],
+        "housing": ["zjt.hunan.gov.cn"]
+      }
+    },
+    "长沙": {
+      "aliases": ["长沙市"],
+      "parent": "湖南",
+      "level": "city",
+      "domains": {
+        "gov": ["www.changsha.gov.cn"],
+        "pnr": ["zygh.changsha.gov.cn"],
+        "housing": ["szjw.changsha.gov.cn"]
+      }
+    },
+    "河南": {
+      "aliases": ["河南省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.henan.gov.cn"],
+        "pnr": ["dnr.henan.gov.cn"],
+        "housing": ["hnjs.henan.gov.cn"]
+      }
+    },
+    "郑州": {
+      "aliases": ["郑州市"],
+      "parent": "河南",
+      "level": "city",
+      "domains": {
+        "gov": ["www.zhengzhou.gov.cn"],
+        "pnr": ["zrzyhgh.zhengzhou.gov.cn"],
+        "housing": ["zzjw.zhengzhou.gov.cn"]
+      }
+    },
+    "山东": {
+      "aliases": ["山东省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.shandong.gov.cn"],
+        "pnr": ["dnr.shandong.gov.cn"],
+        "housing": ["zjt.shandong.gov.cn"]
+      }
+    },
+    "济南": {
+      "aliases": ["济南市"],
+      "parent": "山东",
+      "level": "city",
+      "domains": {
+        "gov": ["www.jinan.gov.cn"],
+        "pnr": ["nrp.jinan.gov.cn"],
+        "housing": ["jncc.jinan.gov.cn"]
+      }
+    },
+    "青岛": {
+      "aliases": ["青岛市"],
+      "parent": "山东",
+      "level": "city",
+      "domains": {
+        "gov": ["www.qingdao.gov.cn"],
+        "pnr": ["zrzygh.qingdao.gov.cn"],
+        "housing": ["sjw.qingdao.gov.cn"]
+      }
+    },
+    "安徽": {
+      "aliases": ["安徽省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.ah.gov.cn"],
+        "pnr": ["zrzyt.ah.gov.cn"],
+        "housing": ["dohurd.ah.gov.cn"]
+      }
+    },
+    "合肥": {
+      "aliases": ["合肥市"],
+      "parent": "安徽",
+      "level": "city",
+      "domains": {
+        "gov": ["www.hefei.gov.cn"],
+        "pnr": ["zrzyhghj.hefei.gov.cn"],
+        "housing": ["cxjsj.hefei.gov.cn"]
+      }
+    },
+    "陕西": {
+      "aliases": ["陕西省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.shaanxi.gov.cn"],
+        "pnr": ["zrzyt.shaanxi.gov.cn"],
+        "housing": ["js.shaanxi.gov.cn"]
+      }
+    },
+    "西安": {
+      "aliases": ["西安市"],
+      "parent": "陕西",
+      "level": "city",
+      "domains": {
+        "gov": ["www.xa.gov.cn"],
+        "pnr": ["zygh.xa.gov.cn"],
+        "housing": ["zjj.xa.gov.cn"]
+      }
+    },
+    "河北": {
+      "aliases": ["河北省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.hebei.gov.cn"],
+        "pnr": ["zrzy.hebei.gov.cn"],
+        "housing": ["zjt.hebei.gov.cn"]
+      }
+    },
+    "辽宁": {
+      "aliases": ["辽宁省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.ln.gov.cn"],
+        "pnr": ["zrzy.ln.gov.cn"],
+        "housing": ["zjt.ln.gov.cn"]
+      }
+    },
+    "沈阳": {
+      "aliases": ["沈阳市"],
+      "parent": "辽宁",
+      "level": "city",
+      "domains": {
+        "gov": ["www.shenyang.gov.cn"],
+        "pnr": ["zrzyj.shenyang.gov.cn"],
+        "housing": ["sjw.shenyang.gov.cn"]
+      }
+    },
+    "大连": {
+      "aliases": ["大连市"],
+      "parent": "辽宁",
+      "level": "city",
+      "domains": {
+        "gov": ["www.dl.gov.cn"],
+        "pnr": ["zrzy.dl.gov.cn"],
+        "housing": ["zjj.dl.gov.cn"]
+      }
+    },
+    "广西": {
+      "aliases": ["广西壮族自治区"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.gxzf.gov.cn"],
+        "pnr": ["dnr.gxzf.gov.cn"],
+        "housing": ["zjt.gxzf.gov.cn"]
+      }
+    },
+    "云南": {
+      "aliases": ["云南省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.yn.gov.cn"],
+        "pnr": ["dnr.yn.gov.cn"],
+        "housing": ["zfcxjst.yn.gov.cn"]
+      }
+    },
+    "海南": {
+      "aliases": ["海南省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.hainan.gov.cn"],
+        "pnr": ["lr.hainan.gov.cn"],
+        "housing": ["zjt.hainan.gov.cn"]
+      }
+    },
+    "江西": {
+      "aliases": ["江西省"],
+      "level": "province",
+      "domains": {
+        "gov": ["www.jiangxi.gov.cn"],
+        "pnr": ["bnr.jiangxi.gov.cn"],
+        "housing": ["zjt.jiangxi.gov.cn"]
+      }
+    }
+  }
+}
